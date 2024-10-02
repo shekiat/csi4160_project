@@ -44,7 +44,7 @@ time.sleep(2.0)
 fps = FPS().start()
 
 # open up a file to send the punch times to
-with open("clock_in_times.txt", "a") as f:
+with open("clock_in_times.txt", "a") as timesheet:
 	# loop over frames from the video file stream
 	while True:
 		# grab the frame from the threaded video stream and resize it
@@ -109,7 +109,7 @@ with open("clock_in_times.txt", "a") as f:
 				if time_punch is None:
 					time_punch = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 					print(f"{currentname} has clocked in at {time_punch}")
-					f.write(f"{currentname} : {time_punch}\n")
+					timesheet.write(f"{currentname} : {time_punch}\n")
 	
 		# If no faces were detected, clear the sensehat
 		if not boxes:
