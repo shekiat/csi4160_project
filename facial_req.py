@@ -9,6 +9,19 @@ import pickle
 import time
 import cv2
 
+from sense_hat import SenseHat
+
+# create sense_hat object, initialize colors
+sense = SenseHat()
+sense.clear()
+G = [0,255,0]
+R = [255,0,0]
+pixels = [G] * 64
+unauthorized = [R] * 64
+
+# initialize variable for the "punch card" timestamp of when the face is first recognized
+time_punch = None
+
 #Initialize 'currentname' to trigger only when a new person is identified.
 currentname = "unknown"
 #Determine faces from encodings.pickle file model created from train_model.py
@@ -85,6 +98,20 @@ while True:
 		y = top - 15 if top - 15 > 15 else top + 15
 		cv2.putText(frame, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
 			.8, (0, 255, 255), 2)
+		# sensehat leds light up green when a face is recognized
+		sense.set_pixels(pixels)
+		# if it's the first time the face is detected, display the timestamp to "clock in" or "clock out"
+		if currentname != name:
+			currentname = name
+
+			if time_punch is None:
+				time_punch = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+				print(f"{currentname} has clocked in at {time_punch}")
+
+	# If no faces were detected, clear the sensehat
+	if not boxes:
+    		sense.clear()
+		time_punch = None
 
 	# display the image to our screen
 	cv2.imshow("Facial Recognition is Running", frame)
