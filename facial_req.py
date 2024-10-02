@@ -15,15 +15,13 @@ from sense_hat import SenseHat
 sense = SenseHat()
 sense.clear()
 G = [0,255,0]
-R = [255,0,0]
 pixels = [G] * 64
-unauthorized = [R] * 64
 
 # initialize variable for the "punch card" timestamp of when the face is first recognized
 time_punch = None
 
 #Initialize 'currentname' to trigger only when a new person is identified.
-currentname = "unknown"
+currentname = "Unknown"
 #Determine faces from encodings.pickle file model created from train_model.py
 encodingsP = "encodings.pickle"
 
@@ -106,10 +104,10 @@ with open("clock_in_times.txt", "a") as timesheet:
 			if currentname != name:
 				currentname = name
 	
-				if time_punch is None:
-					time_punch = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-					print(f"{currentname} has clocked in at {time_punch}")
-					timesheet.write(f"{currentname} : {time_punch}\n")
+      if time_punch is None:
+        time_punch = time.strftime("%Y-%m-%d %I:%M:%S %p", time.localtime())
+        print(f"{currentname} has clocked in at {time_punch}")
+        timesheet.write(f"{currentname} : {time_punch}\n")
 	
 		# If no faces were detected, clear the sensehat
 		if not boxes:
