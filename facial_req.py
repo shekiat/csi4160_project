@@ -106,6 +106,7 @@ with open("clock_in_times.txt", "a") as timesheet:
         time_punch = time.strftime("%Y-%m-%d %I:%M:%S %p", time.localtime())
         print(f"{currentname} has clocked in at {time_punch}")
         timesheet.write(f"{currentname} : {time_punch}\n")
+        timesheet.flush()
 	
 		# If no faces were detected, clear the sensehat
 		if not boxes:
