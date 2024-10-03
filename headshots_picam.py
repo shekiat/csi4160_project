@@ -2,7 +2,7 @@ import cv2
 from picamera import PiCamera
 from picamera.array import PiRGBArray
 
-name = 'Peyton' #replace with your name
+name = 'Sam' #replace with your name
 
 cam = PiCamera()
 cam.resolution = (512, 304)
