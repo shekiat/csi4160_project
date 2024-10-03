@@ -1,5 +1,4 @@
 # csi4160_project
-Milestone 1 Proposal
 
 Presentation Format: Recording
 
