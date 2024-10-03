@@ -100,10 +100,8 @@ with open("clock_in_times.txt", "a") as timesheet:
 				.8, (0, 255, 255), 2)
 			# sensehat leds light up green when a face is recognized
 			sense.set_pixels(pixels)
-			# if it's the first time the face is detected, display the timestamp to "clock in" or "clock out"
 			if currentname != name:
 				currentname = name
-	
       if time_punch is None:
         time_punch = time.strftime("%Y-%m-%d %I:%M:%S %p", time.localtime())
         print(f"{currentname} has clocked in at {time_punch}")
@@ -111,7 +109,7 @@ with open("clock_in_times.txt", "a") as timesheet:
 	
 		# If no faces were detected, clear the sensehat
 		if not boxes:
-	    		sense.clear()
+	    sense.clear()
 			time_punch = None
 	
 		# display the image to our screen
