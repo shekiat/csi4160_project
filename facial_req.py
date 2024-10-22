@@ -165,6 +165,16 @@ with open("clock_in_times.txt", "a") as timesheet:
 				# of votes (note: in the event of an unlikely tie Python
 				# will select first entry in the dictionary)
 				name = max(counts, key=counts.get)
+
+				# CHANGING THE CODE HERE TO TRY TO GET THE CONFIDENCE LEVEL!!!!!!!
+				# Calculate the confidence level (distance)
+        			distances = face_recognition.face_distance(data["encodings"], encoding)
+        			confidence = np.min(distances[matchedIdxs])  # Get the minimum distance from matched faces
+        			confidence_percentage = (1 - confidence) * 100  # Convert to percentage
+
+       				# Print the confidence level
+        			print(f"Confidence for {name}: {confidence_percentage:.2f}%")
+				# END CHANGE FOR ATTEMPT AT CONFIDENCE LEVEL!!!!!!!!!!!!!!!!!!!!!!!
 	
 				#If someone in your dataset is identified, print their name on the screen
 				if currentname != name:
