@@ -97,11 +97,11 @@ The **Automated Employee Clock-In System** is a facial recognition-based system 
 
 ## Project Structure
 
-Bash_Scripts_Milestone2
-|--move_data.sh
-|--send_data.sh
-|--update_mysql_backup.sh
-|--update_website.sh
+Bash_Scripts_Milestone2\
+|--move_data.sh\
+|--send_data.sh\
+|--update_mysql_backup.sh\
+|--update_website.sh\
 GoogleCloudRunFunction
 |--data_transfer.py
 |--requirements.txt
