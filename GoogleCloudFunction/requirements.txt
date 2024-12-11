@@ -1,0 +1,6 @@
+#requirements.txt information
+functions-framework==3.*
+google-cloud-storage
+pymysql
+pandas
+mysql-connector-python
