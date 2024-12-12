@@ -14,6 +14,51 @@ import os
 from datetime import datetime, timedelta
 from sense_hat import SenseHat
 
+def get_attendance_status(time_punch, action):
+	#make sure time_punch in correct format
+	time_punch = datetime.strptime(time_punch, "%Y-%m-%d %I:%M:%S %p")
+	
+	#Clock In
+	if action == "Clock In":
+		#early 6am-7:55am
+		#on time 7:55am-8:05am
+		#late 8:05am-12:pm
+		#rest is invalid
+		early_start = time_punch.replace(hour=6, minute=0, second=0, microsecond=0)
+		early_end = time_punch.replace(hour=7, minute=55, second=0, microsecond=0)
+		on_time_start = time_punch.replace(hour=7, minute=55, second=0, microsecond=0)
+		on_time_end = time_punch.replace(hour=8, minute=5, second=0, microsecond=0)
+		late_end = time_punch.replace(hour=12, minute=0, second=0, microsecond=0)
+		
+		if early_start <= time_punch <= early_end:
+			return "Early"
+		elif on_time_start <= time_punch <= on_time_end:
+			return "On Time"
+		elif on_time_end <= time_punch <= late_end:
+			return "Late"
+		else:
+			return "Invalid Time Punch"
+			
+	elif action == "Clock Out":
+		#early 12pm-4:55pm
+		#on time 4:55pm-5:05pm
+		#late 5:05pm-7pm
+		#rest is invalid
+		early_start = time_punch.replace(hour=12, minute=0, second=0, microsecond=0)
+		early_end = time_punch.replace(hour=16, minute=55, second=0, microsecond=0)
+		on_time_start = time_punch.replace(hour=16, minute=55, second=0, microsecond=0)
+		on_time_end = time_punch.replace(hour=17, minute=5, second=0, microsecond=0)
+		late_end = time_punch.replace(hour=19, minute=0, second=0, microsecond=0)
+		
+		if early_start <= time_punch <= early_end:
+			return "Early"
+		elif on_time_start <= time_punch <= on_time_end:
+			return "On Time"
+		elif on_time_end <= time_punch <= late_end:
+			return "Late"
+		else:
+			return "Invalid Time Punch"
+
 def check_last_entry(file_path, name):
     if not os.path.exists(file_path):
         return None
@@ -58,7 +103,7 @@ csv_file_path="/home/pi/Desktop/data.csv"
 
 # open up a file to send the punch times to
 with open(csv_file_path, mode='w', newline='') as file:
-    headers = ["Name", "Time", "Confidence", "Action"]
+    headers = ["Name", "Time", "Confidence", "Action", "Tardiness"]
     writer = csv.writer(file)
     if os.stat(csv_file_path).st_size == 0:
         writer.writerow(headers)
@@ -73,7 +118,7 @@ with open(csv_file_path, mode='w', newline='') as file:
         # compute the facial embeddings for each face bounding box
         encodings = face_recognition.face_encodings(frame, boxes)
         names = []
-   
+    
         # loop over the facial embeddings
         for encoding in encodings:
             # attempt to match each face in the input image to our known
@@ -81,7 +126,7 @@ with open(csv_file_path, mode='w', newline='') as file:
             matches = face_recognition.compare_faces(data["encodings"],
                 encoding)
             name = "Unknown" #if face is not recognized, then print Unknown
-   
+    
             # check to see if we have found a match
             if True in matches:
                 # find the indexes of all matched faces then initialize a
@@ -89,18 +134,18 @@ with open(csv_file_path, mode='w', newline='') as file:
                 # was matched
                 matchedIdxs = [i for (i, b) in enumerate(matches) if b]
                 counts = {}
-   
+    
                 # loop over the matched indexes and maintain a count for
                 # each recognized face face
                 for i in matchedIdxs:
                     name = data["names"][i]
                     counts[name] = counts.get(name, 0) + 1
-   
+    
                 # determine the recognized face with the largest number
                 # of votes (note: in the event of an unlikely tie Python
                 # will select first entry in the dictionary)
                 name = max(counts, key=counts.get)
-               
+                
                 #CHANGING THE CODE HERE TO TRY TO GET THE CONFIDENCE LEVEL!!!!!!!
                 #Calculate the confidence level (distance)
                 distances = face_recognition.face_distance(data["encodings"], encoding)
@@ -110,15 +155,15 @@ with open(csv_file_path, mode='w', newline='') as file:
                 #Print the confidence level
                 print(f"Confidence for {name}: {confidence_percentage:.2f}%")
                 #END CHANGE FOR ATTEMPT AT CONFIDENCE LEVEL!!!!!!!!!!!!!!!!!!!!!!!
-   
+    
                 #If someone in your dataset is identified, print their name on the screen
                 if currentname != name:
                     currentname = name
                     print(currentname)
-   
+    
             # update the list of names
             names.append(name)
-   
+    
         # loop over the recognized faces
         for ((top, right, bottom, left), name) in zip(boxes, names):
             # draw the predicted face name on the image - color is in BGR
@@ -132,7 +177,7 @@ with open(csv_file_path, mode='w', newline='') as file:
             # if it's the first time the face is detected, display the timestamp to "clock in" or "clock out"
             if currentname != name:
                 currentname = name
-   
+    
             if time_punch is None:
                 last_entry_time = check_last_entry(csv_file_path, name)
                 current_time = datetime.now()
@@ -142,32 +187,33 @@ with open(csv_file_path, mode='w', newline='') as file:
                     action="Clock In"
                 time_punch = current_time.strftime("%Y-%m-%d %I:%M:%S %p")
                 print(f"{currentname} has logged {action} at {time_punch}")
+                attendance_status = get_attendance_status(time_punch, action)
                 csv_name = name
                 csv_time = time_punch
                 csv_confidence = round(confidence_percentage, 2)
-                row = [csv_name, csv_time, csv_confidence, action]
+                row = [csv_name, csv_time, csv_confidence, action, attendance_status]
                 writer.writerow(row)
                 file.flush()
-               
+                
             y_action = bottom + 30
             cv2.putText(frame, action, (left, y_action), cv2.FONT_HERSHEY_SIMPLEX, .8, (0, 255, 255), 2)
-                   
+                    
                # timesheet.write(f"{currentname} : {time_punch}\n")
                # timesheet.flush()
-   
+    
         # If no faces were detected, clear the sensehat
         if not boxes:
             sense.clear()
             time_punch = None
-   
+    
         # display the image to our screen
         cv2.imshow("Facial Recognition is Running", frame)
         key = cv2.waitKey(1) & 0xFF
-   
+    
         # quit when 'q' key is pressed
         if key == ord("q"):
             break
-   
+    
         # update the FPS counter
         fps.update()
 
@@ -179,3 +225,4 @@ print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 # do a bit of cleanup
 cv2.destroyAllWindows()
 vs.stop()
+
